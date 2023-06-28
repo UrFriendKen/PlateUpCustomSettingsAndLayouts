@@ -12,6 +12,8 @@ namespace CustomSettingsAndLayouts
 
         private static HashSet<int> RegisteredSettingsToGrant = new HashSet<int>();
 
+        private static HashSet<int> RegisteredGenericLayoutsToAdd = new HashSet<int>();
+
         public static void AddSettingLayout(RestaurantSetting setting, LayoutProfile layoutProfile, bool noDuplicates = false)
         {
             if (!_validLayoutsBySetting.ContainsKey(setting.ID))
@@ -26,6 +28,18 @@ namespace CustomSettingsAndLayouts
             foreach (LayoutProfile layoutProfile in layoutProfiles)
             {
                 AddSettingLayout(setting, layoutProfile, noDuplicates);
+            }
+        }
+
+        public static void AddGenericLayout(LayoutProfile layoutProfile, int totalCount = 2)
+        {
+            if ((layoutProfile?.ID ?? 0) != 0)
+            {
+                int currentCount = AssetReference.FixedRunLayout.Where(x => x == layoutProfile.ID).Count();
+                for (int i = 0; i < totalCount - currentCount; i++)
+                {
+                    AssetReference.FixedRunLayout = AssetReference.FixedRunLayout.Append(layoutProfile.ID).ToArray();
+                }
             }
         }
 
