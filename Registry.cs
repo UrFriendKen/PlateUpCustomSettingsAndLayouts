@@ -1,6 +1,5 @@
 ﻿using KitchenData;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace CustomSettingsAndLayouts
 {
@@ -28,18 +27,6 @@ namespace CustomSettingsAndLayouts
             foreach (LayoutProfile layoutProfile in layoutProfiles)
             {
                 AddSettingLayout(setting, layoutProfile, noDuplicates);
-            }
-        }
-
-        public static void AddGenericLayout(LayoutProfile layoutProfile, int totalCount = 2)
-        {
-            if ((layoutProfile?.ID ?? 0) != 0)
-            {
-                int currentCount = AssetReference.FixedRunLayout.Where(x => x == layoutProfile.ID).Count();
-                for (int i = 0; i < totalCount - currentCount; i++)
-                {
-                    AssetReference.FixedRunLayout = AssetReference.FixedRunLayout.Append(layoutProfile.ID).ToArray();
-                }
             }
         }
 

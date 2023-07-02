@@ -1,6 +1,6 @@
 ﻿using Kitchen;
+using KitchenData;
 using KitchenMods;
-using System;
 using System.Linq;
 using Unity.Entities;
 
@@ -65,6 +65,13 @@ namespace CustomSettingsAndLayouts
             Registry.RestoreAssetReferences();
             base.EntityManager.SetComponentData(singletonEntity, (CItemHolder)entity);
             base.EntityManager.SetComponentData(entity, (CHeldBy)singletonEntity);
+            //if (GameData.Main.TryGet(setting_id, out RestaurantSetting setting) && setting.FixedDish != null)
+            //{
+            //    base.EntityManager.AddComponentData(entity, new CSettingDish
+            //    {
+            //        DishID = setting.FixedDish.ID
+            //    });
+            //}
         }
     }
 }
