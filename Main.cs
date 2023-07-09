@@ -7,7 +7,7 @@ namespace CustomSettingsAndLayouts
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.CustomSettingsAndLayouts";
         public const string MOD_NAME = "Custom Settings and Layouts";
-        public const string MOD_VERSION = "0.1.4";
+        public const string MOD_VERSION = "0.1.5";
 
         internal static bool BuildDone = false;
 
@@ -16,8 +16,13 @@ namespace CustomSettingsAndLayouts
             LogWarning($"{MOD_GUID} v{MOD_VERSION} in use!");
         }
 
-        public void PreInject() { }
-        public void PostInject() { }
+        public void PreInject()
+        {
+        }
+
+        public void PostInject()
+        {
+        }
 
         #region Logging
         public static void LogInfo(string _log) { Debug.Log($"[{MOD_NAME}] " + _log); }

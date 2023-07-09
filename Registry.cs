@@ -1,4 +1,5 @@
-﻿using KitchenData;
+﻿using Kitchen.ShopBuilder;
+using KitchenData;
 using System.Collections.Generic;
 
 namespace CustomSettingsAndLayouts
@@ -11,7 +12,9 @@ namespace CustomSettingsAndLayouts
 
         private static HashSet<int> RegisteredSettingsToGrant = new HashSet<int>();
 
-        private static HashSet<int> RegisteredGenericLayoutsToAdd = new HashSet<int>();
+        private static Dictionary<int, HashSet<int>> _specialDecorationsBySetting = new Dictionary<int, HashSet<int>>();
+
+        private static Dictionary<int, HashSet<int>> _disableAppliancesBySetting = new Dictionary<int, HashSet<int>>();
 
         public static void AddSettingLayout(RestaurantSetting setting, LayoutProfile layoutProfile, bool noDuplicates = false)
         {
@@ -27,6 +30,40 @@ namespace CustomSettingsAndLayouts
             foreach (LayoutProfile layoutProfile in layoutProfiles)
             {
                 AddSettingLayout(setting, layoutProfile, noDuplicates);
+            }
+        }
+
+        public static void AddSettingDecoration(RestaurantSetting setting, Appliance appliance)
+        {
+            if (!_specialDecorationsBySetting.ContainsKey(setting.ID))
+                _specialDecorationsBySetting.Add(setting.ID, new HashSet<int>());
+            if (_specialDecorationsBySetting[setting.ID].Contains(appliance.ID))
+                return;
+            _specialDecorationsBySetting[setting.ID].Add(appliance.ID);
+        }
+
+        public static void AddSettingDecoration(RestaurantSetting setting, IEnumerable<Appliance> appliances)
+        {
+            foreach (Appliance appliance in appliances)
+            {
+                AddSettingDecoration(setting, appliance);
+            }
+        }
+
+        public static void AddSettingDisableAppliance(RestaurantSetting setting, Appliance appliance)
+        {
+            if (!_disableAppliancesBySetting.ContainsKey(setting.ID))
+                _disableAppliancesBySetting.Add(setting.ID, new HashSet<int>());
+            if (_disableAppliancesBySetting[setting.ID].Contains(appliance.ID))
+                return;
+            _disableAppliancesBySetting[setting.ID].Add(appliance.ID);
+        }
+
+        public static void AddSettingDisableAppliance(RestaurantSetting setting, IEnumerable<Appliance> appliances)
+        {
+            foreach (Appliance appliance in appliances)
+            {
+                AddSettingDisableAppliance(setting, appliance);
             }
         }
 
@@ -74,7 +111,28 @@ namespace CustomSettingsAndLayouts
 
         internal static HashSet<int> GetSettingsToGrant()
         {
-            return RegisteredSettingsToGrant;
+            return new HashSet<int>(RegisteredSettingsToGrant);
+        }
+
+        internal static Dictionary<int, HashSet<int>> GetSpecialDecorationsBySetting()
+        {
+            return new Dictionary<int, HashSet<int>>(_specialDecorationsBySetting);
+        }
+
+        internal static bool ShouldBlockAppliance(int restaurantSettingID, CShopBuilderOption option)
+        {
+            if (option.IsRemoved)
+                return false;
+
+            HashSet<int> applianceIDs;
+            if (option.Tags.HasFlag(ShoppingTags.SpecialEvent) &&
+                _specialDecorationsBySetting.TryGetValue(restaurantSettingID, out applianceIDs) &&
+                !applianceIDs.Contains(option.Appliance))
+                return true;
+            if (_disableAppliancesBySetting.TryGetValue(restaurantSettingID, out applianceIDs) &&
+                applianceIDs.Contains(option.Appliance))
+                return true;
+            return false;
         }
     }
 }
