@@ -50,7 +50,7 @@ namespace CustomSettingsAndLayouts
             }
         }
 
-        public static void AddSettingDisableAppliance(RestaurantSetting setting, Appliance appliance)
+        public static void AddSettingDisabledAppliance(RestaurantSetting setting, Appliance appliance)
         {
             if (!_disableAppliancesBySetting.ContainsKey(setting.ID))
                 _disableAppliancesBySetting.Add(setting.ID, new HashSet<int>());
@@ -59,11 +59,11 @@ namespace CustomSettingsAndLayouts
             _disableAppliancesBySetting[setting.ID].Add(appliance.ID);
         }
 
-        public static void AddSettingDisableAppliance(RestaurantSetting setting, IEnumerable<Appliance> appliances)
+        public static void AddSettingDisabledAppliance(RestaurantSetting setting, IEnumerable<Appliance> appliances)
         {
             foreach (Appliance appliance in appliances)
             {
-                AddSettingDisableAppliance(setting, appliance);
+                AddSettingDisabledAppliance(setting, appliance);
             }
         }
 
