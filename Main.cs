@@ -7,7 +7,7 @@ namespace CustomSettingsAndLayouts
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.CustomSettingsAndLayouts";
         public const string MOD_NAME = "Custom Settings and Layouts";
-        public const string MOD_VERSION = "0.1.5";
+        public const string MOD_VERSION = "0.1.6";
 
         internal static bool BuildDone = false;
 

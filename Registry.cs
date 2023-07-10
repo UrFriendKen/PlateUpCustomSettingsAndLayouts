@@ -12,6 +12,7 @@ namespace CustomSettingsAndLayouts
 
         private static HashSet<int> RegisteredSettingsToGrant = new HashSet<int>();
 
+        private static Dictionary<int, HashSet<int>> _settingsBySpecialDecoration = new Dictionary<int, HashSet<int>>();
         private static Dictionary<int, HashSet<int>> _specialDecorationsBySetting = new Dictionary<int, HashSet<int>>();
 
         private static Dictionary<int, HashSet<int>> _disableAppliancesBySetting = new Dictionary<int, HashSet<int>>();
@@ -37,9 +38,13 @@ namespace CustomSettingsAndLayouts
         {
             if (!_specialDecorationsBySetting.ContainsKey(setting.ID))
                 _specialDecorationsBySetting.Add(setting.ID, new HashSet<int>());
-            if (_specialDecorationsBySetting[setting.ID].Contains(appliance.ID))
-                return;
-            _specialDecorationsBySetting[setting.ID].Add(appliance.ID);
+            if (!_specialDecorationsBySetting[setting.ID].Contains(appliance.ID))
+                _specialDecorationsBySetting[setting.ID].Add(appliance.ID);
+
+            if (!_settingsBySpecialDecoration.ContainsKey(appliance.ID))
+                _settingsBySpecialDecoration.Add(appliance.ID, new HashSet<int>());
+            if (!_settingsBySpecialDecoration[appliance.ID].Contains(setting.ID))
+                _settingsBySpecialDecoration[appliance.ID].Add(setting.ID);
         }
 
         public static void AddSettingDecoration(RestaurantSetting setting, IEnumerable<Appliance> appliances)
@@ -114,21 +119,18 @@ namespace CustomSettingsAndLayouts
             return new HashSet<int>(RegisteredSettingsToGrant);
         }
 
-        internal static Dictionary<int, HashSet<int>> GetSpecialDecorationsBySetting()
-        {
-            return new Dictionary<int, HashSet<int>>(_specialDecorationsBySetting);
-        }
-
         internal static bool ShouldBlockAppliance(int restaurantSettingID, CShopBuilderOption option)
         {
             if (option.IsRemoved)
                 return false;
 
-            HashSet<int> applianceIDs;
+            HashSet<int> settingIDs;
             if (option.Tags.HasFlag(ShoppingTags.SpecialEvent) &&
-                _specialDecorationsBySetting.TryGetValue(restaurantSettingID, out applianceIDs) &&
-                !applianceIDs.Contains(option.Appliance))
+                _settingsBySpecialDecoration.TryGetValue(option.Appliance, out settingIDs) &&
+                !settingIDs.Contains(restaurantSettingID))
                 return true;
+
+            HashSet<int> applianceIDs;
             if (_disableAppliancesBySetting.TryGetValue(restaurantSettingID, out applianceIDs) &&
                 applianceIDs.Contains(option.Appliance))
                 return true;
