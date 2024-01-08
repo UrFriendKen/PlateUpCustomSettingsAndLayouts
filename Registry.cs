@@ -1,6 +1,9 @@
-﻿using Kitchen.ShopBuilder;
+﻿using CustomSettingsAndLayouts.Utils;
+using Kitchen;
+using Kitchen.ShopBuilder;
 using KitchenData;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace CustomSettingsAndLayouts
 {
@@ -16,6 +19,9 @@ namespace CustomSettingsAndLayouts
         private static Dictionary<int, HashSet<int>> _specialDecorationsBySetting = new Dictionary<int, HashSet<int>>();
 
         private static Dictionary<int, HashSet<int>> _disableAppliancesBySetting = new Dictionary<int, HashSet<int>>();
+
+        private static Dictionary<CustomerType, ViewType> _customCustomerViewType = new Dictionary<CustomerType, ViewType>();
+        private static Dictionary<ViewType, GameObject> _customCustomerViewPrefab = new Dictionary<ViewType, GameObject>();
 
         public static void AddSettingLayout(RestaurantSetting setting, LayoutProfile layoutProfile, bool noDuplicates = false)
         {
@@ -85,6 +91,31 @@ namespace CustomSettingsAndLayouts
                 RegisteredSettingsToGrant.Add(setting.ID);
         }
 
+        public static void SetCustomerModelForType(CustomerType customerType, GameObject prefab)
+        {
+            if (customerType?.name == null)
+            {
+                Main.LogError("CustomerType cannot be null!");
+                return;
+            }
+
+            if (prefab == null)
+            {
+                Main.LogError("Prefab is null!");
+                return;
+            }
+
+            if (_customCustomerViewType.TryGetValue(customerType, out ViewType viewType))
+                Main.LogWarning($"Overriding prefab for CustomerType: {customerType}");
+            else
+            {
+                viewType = (ViewType)HashUtils.GetID($"{Main.MOD_GUID}_{customerType.name}_viewType");
+                _customCustomerViewType.Add(customerType, viewType);
+            }
+            _customCustomerViewPrefab[viewType] = prefab;
+            Main.LogInfo($"Assigned prefab, {prefab.name}, to {customerType.name}");
+        }
+
         internal static bool TryGetValidLayoutIDs(int settingID, out int[] validLayoutIDs)
         {
             validLayoutIDs = null;
@@ -135,6 +166,16 @@ namespace CustomSettingsAndLayouts
                 applianceIDs.Contains(option.Appliance))
                 return true;
             return false;
+        }
+
+        internal static bool TryGetCustomCustomerViewType(CustomerType customerType, out ViewType viewType)
+        {
+            return _customCustomerViewType.TryGetValue(customerType, out viewType);
+        }
+
+        internal static bool TryGetCustomCustomerViewPrefab(ViewType viewType, out GameObject prefab)
+        {
+            return _customCustomerViewPrefab.TryGetValue(viewType, out prefab);
         }
     }
 }

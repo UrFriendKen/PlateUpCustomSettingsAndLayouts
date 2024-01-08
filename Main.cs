@@ -1,4 +1,9 @@
-﻿using KitchenMods;
+﻿using HarmonyLib;
+using Kitchen;
+using KitchenData;
+using KitchenMods;
+using System.Linq;
+using System.Reflection;
 using UnityEngine;
 
 namespace CustomSettingsAndLayouts
@@ -7,9 +12,13 @@ namespace CustomSettingsAndLayouts
     {
         public const string MOD_GUID = "IcedMilo.PlateUp.CustomSettingsAndLayouts";
         public const string MOD_NAME = "Custom Settings and Layouts";
-        public const string MOD_VERSION = "0.1.6";
+        public const string MOD_VERSION = "0.1.7";
 
-        internal static bool BuildDone = false;
+        public Main()
+        {
+            Harmony harmony = new Harmony(MOD_GUID);
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
+        }
 
         public void PostActivate(KitchenMods.Mod mod)
         {
@@ -18,6 +27,28 @@ namespace CustomSettingsAndLayouts
 
         public void PreInject()
         {
+            Main.LogInfo("PreInject");
+            CustomerType genericCustomerType = null;
+            foreach (CustomerType customerType in GameData.Main.Get<CustomerType>())
+            {
+                if (customerType.IsGenericGroup)
+                {
+                    genericCustomerType = customerType;
+                    break;
+                }
+            }
+
+            if (genericCustomerType == null)
+                return;
+            Main.LogInfo($"Generic Customer Type: {genericCustomerType}");
+            GameObject catPrefab = Resources.FindObjectsOfTypeAll<GameObject>()
+                .Where(x => x.GetComponent<CustomerView>() != null && x.name.ToLowerInvariant().Contains("cat"))
+                .FirstOrDefault();
+
+            if (catPrefab == null)
+                return;
+            Main.LogInfo($"Cat Prefab: {catPrefab}");
+            Registry.SetCustomerModelForType(genericCustomerType, catPrefab);
         }
 
         public void PostInject()
